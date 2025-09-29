@@ -1,0 +1,77 @@
+name: QA Deployment
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: master
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache Composer dependencies 
+        uses: actions/cache@v3
+        with: 
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+
+      - name: Set up PHP Action
+        uses: shivammathur/setup-php@2.30.5
+        with:
+          php-version: '8.1.2'
+          extensions: mbstring, pdo_mysql, pdo_pgsql, pgsql
+          tools: composer:v2
+
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-dev --optimize-autoloader
+
+      - name: Dump Autoload (PSR-4)
+        run: composer dump-autoload -o
+
+      - name: Setup SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p $HOME/.ssh
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' > $HOME/.ssh/id_rsa
+          chmod 600 $HOME/.ssh/id_rsa
+          ssh-keyscan -t rsa ${{ vars.SERVER_IP }} >> $HOME/.ssh/known_hosts
+
+      - name: Add Server to Known Hosts (if necessary)
+        run: ssh-keyscan -t rsa ${{ vars.SERVER_IP }} >> $HOME/.ssh/known_hosts
+        shell: bash
+
+      - name: Create .env file
+        run: |
+          cat <<EOF > .env
+          APP_ENV=QA
+          DB_CONNECTION=pgsql
+          DB_HOST=${{ vars.DB_HOST }}
+          DB_PORT=5432
+          DB_DATABASE=${{ vars.DB_NAME }}
+          DB_USERNAME=${{ vars.DB_USER }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          EOF
+
+      - name: Set correct permissions on .env
+        run: chmod 644 .env
+
+      - name: Sync Files to Server
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          MIDDLE_PART=$(echo "$REPO_NAME" | cut -d '-' -f 2)
+          DEST_PATH="/var/www/html/$MIDDLE_PART"
+          SERVER_USER=${{ vars.SSH_USER }}
+          SERVER_IP=${{ vars.SERVER_IP }}
+          
+          ssh $SERVER_USER@$SERVER_IP "mkdir -p $DEST_PATH"
+          
+          rsync -avz -e "ssh -i $HOME/.ssh/id_rsa" \
+            --exclude=".git/" \
+            --exclude="tests/" \
+            --exclude=".github/" \
+            ./ $SERVER_USER@$SERVER_IP:$DEST_PATH/
