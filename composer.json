@@ -1,0 +1,20 @@
+{
+  "name": "dennyscedeno/platform-api",
+  "description": "This is the unified backend for APIs platform, merging all core APIs into a scalable and modular PHP structure.",
+  "type": "project",
+  "require": {
+    "vlucas/phpdotenv": "^5.5",
+    "altorouter/altorouter": "^2.0",
+    "ramsey/uuid": "^4.7"
+  },
+  "authors": [
+    {
+        "name": "dennysCedeno"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "GivingGap\\Platform\\": "src/"
+    }
+  }
+}
