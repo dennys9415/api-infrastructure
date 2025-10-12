@@ -1,6 +1,6 @@
 <?php
 
-namespace GivingGap\Platform\Models;
+namespace API\Platform\Models;
 
 use PDO;
 

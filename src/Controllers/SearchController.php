@@ -1,9 +1,9 @@
 <?php
 
-namespace GivingGap\Platform\Controllers;
+namespace API\Platform\Controllers;
 
-use GivingGap\Platform\Services\SearchService;
-use GivingGap\Platform\Utils\ResponseHandler;
+use API\Platform\Services\SearchService;
+use API\Platform\Utils\ResponseHandler;
 
 class SearchController
 {

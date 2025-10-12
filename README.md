@@ -10,7 +10,7 @@ This is the unified backend for APIs platform, merging all core APIs  into a sca
 The platform follows **PSR-4 Autoloading** and clean **OOP** principles to support scalability, modularity, and security.
 
 ```
-givinggap-platform-api/
+API-platform/
 │
 ├── public/                       # Public web root (entry point)
 │   └── index.php                 # Bootstrap entry point

@@ -1,6 +1,6 @@
 <?php
 
-namespace GivingGap\Platform\Utils;
+namespace API\Platform\Utils;
 
 class ResponseHandler
 {

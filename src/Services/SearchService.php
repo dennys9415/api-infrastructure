@@ -1,8 +1,8 @@
 <?php
 
-namespace GivingGap\Platform\Services;
+namespace API\Platform\Services;
 
-use GivingGap\Platform\Models\Search;
+use API\Platform\Models\Search;
 
 class SearchService
 {
